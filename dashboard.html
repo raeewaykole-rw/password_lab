@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Lab Dashboard</title>
+    <style>
+        :root {
+            --bg1: #0f172a;
+            --bg2: #111827;
+            --card: #1f2937;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --ok: #10b981;
+            --bad: #ef4444;
+            --warn: #f59e0b;
+            --accent: #22d3ee;
+        }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 20%, #1e293b 0%, var(--bg1) 40%, var(--bg2) 100%);
+            min-height: 100vh;
+        }
+        .wrap { max-width: 1050px; margin: 0 auto; padding: 24px; }
+        .title { margin: 0 0 8px; font-size: 30px; letter-spacing: 0.6px; }
+        .sub { margin: 0 0 24px; color: var(--muted); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .card { background: rgba(31, 41, 55, 0.75); border: 1px solid rgba(148,163,184,0.2); border-radius: 12px; padding: 14px; backdrop-filter: blur(8px); }
+        .k { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+        .v { font-size: 24px; margin-top: 6px; }
+        table { width: 100%; border-collapse: collapse; background: rgba(17, 24, 39, 0.85); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 10px; border-bottom: 1px solid rgba(148,163,184,0.15); text-align: left; font-size: 14px; }
+        th { color: var(--accent); font-weight: 600; }
+        .status-cracked { color: var(--ok); font-weight: 600; }
+        .status-failed, .status-failed_locked, .status-locked { color: var(--bad); font-weight: 600; }
+        .status-rate_limited { color: var(--warn); font-weight: 600; }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.3); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1 class="title">Password Attack & Defense Lab</h1>
+        <p class="sub">SOC-style monitoring for your simulated attacks and defensive controls</p>
+
+        <div class="grid">
+            <div class="card"><div class="k">Total Events</div><div class="v">{{ total }}</div></div>
+            <div class="card"><div class="k">Cracked</div><div class="v" style="color:var(--ok)">{{ cracked }}</div></div>
+            <div class="card"><div class="k">Failed</div><div class="v" style="color:var(--bad)">{{ failed }}</div></div>
+            <div class="card">
+                <div class="k">Attack Types</div>
+                <div style="margin-top:6px">
+                    {% for atk, count in attack_counts.items() %}
+                    <span class="pill">{{ atk }}: {{ count }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Time (UTC)</th>
+                    <th>Attack</th>
+                    <th>Status</th>
+                    <th>Attempts</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.time or "-" }}</td>
+                    <td>{{ log.attack or "-" }}</td>
+                    <td class="status-{{ log.status|replace(' ', '_') }}">{{ log.status or "-" }}</td>
+                    <td>{{ log.attempts or "-" }}</td>
+                    <td>{{ log.password or log.user or log.config or "-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
